@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "mybatis-3-mapper.dtd">
+<mapper namespace="com.qi.fastdfs_test.dao.RequirementMapper">
+
+    <resultMap id="requirementResult" type="com.qi.fastdfs_test.entity.Requirement">
+        <id property="id" column="id" />
+        <result property="title" column="title" />
+        <result property="note" column="note" />
+        <result property="pm" column="pm" />
+        <collection property="reqDocuments" ofType="com.qi.fastdfs_test.entity.ReqDocument">
+            <id property="docId" column="docId" />
+            <result property="reqId" column="reqId" />
+            <result property="uploadUserId" column="uploadUserId" />
+            <result property="docName" column="docName" />
+            <result property="docSize" column="docSize" />
+            <result property="docType" column="docType" />
+            <result property="groupName" column="groupName" />
+            <result property="remoteFilePath" column="remoteFilePath" />
+            <result property="uploadDatetime" column="uploadDatetime" />
+            <association property="uploadUser" javaType="com.qi.fastdfs_test.entity.User">
+                <id property="userId" column="userId" />
+                <result property="userName" column="userName" />
+            </association>
+        </collection>
+    </resultMap>
+
+    <select id="getRequirementById" parameterType="int" resultMap="requirementResult">
+        SELECT
+            sr.id,
+            sr.title,
+            sr.note,
+            sr.pm,
+            dfi.doc_id AS docId,
+            dfi.req_id AS reqId,
+            dfi.upload_user_id AS uploadUserId,
+            dfi.doc_name AS docName,
+            dfi.doc_size AS docSize,
+            dfi.doc_type AS docType,
+            dfi.group_name AS groupName,
+            dfi.remote_file_path AS remoteFilePath,
+            DATE_FORMAT(dfi.upload_datetime, '%Y-%m-%d %T') AS uploadDatetime,
+            su.user_id AS userId,
+            su.user_name AS userName
+        FROM sepp_req sr
+            LEFT OUTER JOIN document_files_info dfi ON dfi.req_id = sr.id
+            LEFT OUTER JOIN sepp_user su ON su.user_id = dfi.upload_user_id
+        WHERE id = #{reqId}
+    </select>
+</mapper>

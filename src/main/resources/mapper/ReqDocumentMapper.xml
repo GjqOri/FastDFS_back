@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "mybatis-3-mapper.dtd">
+
+<mapper namespace="com.qi.fastdfs_test.dao.ReqDocumentMapper">
+
+    <resultMap id="reqDocumentResult" type="com.qi.fastdfs_test.entity.ReqDocument">
+        <id property="docId" column="docId" />
+        <result property="docName" column="docName" />
+        <result property="docSize" column="docSize" />
+        <result property="docType" column="docType" />
+        <result property="uploadDatetime" column="uploadDatetime" />
+        <association property="uploadUser" javaType="com.qi.fastdfs_test.entity.User">
+            <id property="userId" column="uploadUserId" />
+            <result property="userName" column="userName" />
+        </association>
+    </resultMap>
+
+    <select id="getReqDocumentsByReqId" parameterType="int" resultMap="reqDocumentResult">
+        select
+            dfi.doc_id              as docId,
+            dfi.upload_user_id      as uploadUserId,
+            dfi.doc_name            as docName,
+            dfi.doc_size            as docSize,
+            dfi.doc_type            as docType,
+            DATE_FORMAT(dfi.upload_datetime,'%Y-%m-%d %T')   as uploadDatetime,
+            su.user_name            as userName
+        from document_files_info dfi
+        left outer join sepp_user su on dfi.upload_user_id = su.user_id
+        where dfi.req_id = #{reqId}
+    </select>
+
+</mapper>
